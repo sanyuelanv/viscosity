@@ -23,8 +23,11 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #f1f1f1;
+
       cursor: pointer;
+    }
+    #canvas{
+      background-color: #f1f1f1;
     }
   </style>
   <title>Document</title>
@@ -37,8 +40,8 @@
 
   <script>
     // 1.获取当前页面宽高
-    var WIDTH =  document.body.offsetWidth
-    var HEIGHT = document.body.offsetHeight
+    var WIDTH =  document.body.offsetWidth/2
+    var HEIGHT = document.body.offsetHeight/2
     var MAXDIST = 200
     // 2.获取canvas实例，设置宽高，获取context
     var canvas = document.getElementById('canvas')
@@ -149,7 +152,7 @@
 
 
     // 手势函数
-    var gesture = function(self,ctx,bubble){
+    var gesture = function(self,ctx,bubble,config){
       var flag = false
       var maxDist = MAXDIST
       var hasOver = false
@@ -164,6 +167,7 @@
         bubble.drawRect(ctx)
       }
       var startPan = function(e){
+        e = e.touches ? e.touches[0] :e
         var pot = {x:e.pageX ,y:e.pageY}
         var circle = bubble.frame
         //判断点是否在圆内部
@@ -180,6 +184,7 @@
         }
       }
       var movePan = function(e){
+        e = e.touches ? e.touches[0] :e
         if(flag){
           var currentPot = {x:e.pageX,y:e.pageY}
           var orginPot = {x:littleBubble.frame.x,y:littleBubble.frame.y}
@@ -196,6 +201,7 @@
         }
       }
       var endPan = function(e){
+        e = e.touches ? e.touches[0] :e 
         if(flag){
           bubble.frame = {x:littleBubble.frame.x,y:littleBubble.frame.y,r:bubble.frame.r}
           drawRect()
@@ -205,14 +211,21 @@
         }
         flag = false
       }
-      self.addEventListener('mousedown',startPan,false)
-      self.addEventListener('touchstart',startPan,false)
-      self.addEventListener('mousemove',movePan,false)
-      self.addEventListener('mouseup',endPan,false)
+      if(config){
+        self.addEventListener('mousedown',startPan,false)
+        self.addEventListener('mousemove',movePan,false)
+        self.addEventListener('mouseup',endPan,false)
+      }
+      else {
+        self.addEventListener('touchstart',startPan,false)
+        self.addEventListener('touchmove',movePan,false)
+        self.addEventListener('touchend',endPan,false)
+      }
+
     }
 
     var bubble = new Bubble()
-    bubble.frame = {x:WIDTH/2,y:HEIGHT/2,r:10}
+    bubble.frame = {x:WIDTH/4,y:HEIGHT/4,r:20}
     bubble.color = '#ff0000'
     bubble.text = '1'
     bubble.textProp = {
@@ -221,7 +234,7 @@
     }
     bubble.drawRect(ctx)
     var curve = new Curve()
-    gesture(canvas,ctx,bubble)
+    gesture(canvas,ctx,bubble,false)
   </script>
 </body>
 
